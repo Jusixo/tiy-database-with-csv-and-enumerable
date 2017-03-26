@@ -14,26 +14,28 @@ class Person
   end
 end
 
-class DataBase
+class TiyDatabase
+  attr_reader "profiles"
+
   def initialize
     @profiles = []
     CSV.foreach("employees.csv", headers: true) do |row|
       name = row["name"]
       phone = row["phone"]
       address = row["address"]
-      position = row["postion"]
+      position = row["position"]
       salary = row["salary"]
       slack = row["slack"]
       github = row["github"]
 
-      person = Person.new(name, phone, address, position, salary, slack, github)
+      person = Person.new(name, phone, address, position, salary.to_i, slack, github)
 
       @profiles << person
     end
   end
 
   def initial_question
-    puts "(a) Add a profile (s) Search for a profile (d) Delete a profile (e) View employee report "
+    puts "(A) Add a profile (S) Search for a profile (D) Delete a profile (E) View employee report "
     initial = gets.chomp
   end
 
@@ -44,7 +46,7 @@ class DataBase
       puts "This profile already exists"
     else
       puts "What is your phone number?"
-      phone = gets.chomp
+      phone = gets.chomp.to_i
 
       puts "What is your address?"
       address = gets.chomp
@@ -53,7 +55,7 @@ class DataBase
       position = gets.chomp
 
       puts "What is your salary?"
-      salary = gets.chomp
+      salary = gets.chomp.to_i
 
       puts "what is your Slack Account?"
       slack = gets.chomp
@@ -61,9 +63,9 @@ class DataBase
       puts "what is your Git Account?"
       github = gets.chomp
 
-      account = Person.new(name, phone, address, position, salary, slack, github)
+      person = Person.new(name, phone, address, position, salary, slack, github)
 
-      @profiles << account
+      @profiles << person
 
       employee_save
     end
@@ -93,6 +95,7 @@ class DataBase
     delete_profile = @profiles.delete_if { |person| person.name == delete_name}
     if delete_profile
       puts "profile deleted"
+      employee_save
     else
       puts "profile not found"
     end
@@ -100,7 +103,7 @@ class DataBase
 
   def employee_save
     CSV.open("employees.csv", "w") do |csv|
-      csv << ["name", "phone_number", "address", "position", "salary", "slack_account", "github_account"]
+      csv << ["name", "phone", "address", "position", "salary", "slack", "github"]
       @profiles.each do |person|
         csv << [person.name, person.phone, person.address, person.position, person.salary, person.slack, person.github]
       end
@@ -129,7 +132,7 @@ class DataBase
   end
 
   def total_instructor
-    @profiles.select { |person| person.position.include? ("Intructor") }.count
+    @profiles.select { |person| person.position.include?("Intructor") }.count
   end
 
   def total_director
@@ -140,10 +143,10 @@ class DataBase
     @profiles.select { |person| person.position.include?("Student") }.count
   end
 
-  data = DataBase.new
+  data = TiyDatabase.new
 
   loop do
-    puts 'Would you like to Add (A), Search (S) or Delete (D) a person or view the Report (E) from the Iron Yard Database?'
+    puts "Add a profile (A), Search (S) or Delete (D) Check the employee report (E)"
     selected = gets.chomp.upcase
 
     data.add_person if selected == 'A'
